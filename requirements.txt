@@ -1,0 +1,9 @@
+torch
+transformers
+pandas
+safetensors
+python-dotenv
+#playwright
+#playwright-stealth
+emoji
+accelerate

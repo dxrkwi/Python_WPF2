@@ -1,0 +1,30 @@
+# --- Projektspezifische Daten ---
+user_data/
+playwright_data/
+
+# --- Python & Virtuelle Umgebungen ---
+.venv/
+venv/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Editor & IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Playwright Spezifisches ---
+test-results/
+playwright-report/
+blob-report/
+playwright/.local-browsers/
+
+# --- Betriebssystem ---
+.DS_Store
+Thumbs.db
+
+#.env (API KEY)
+.env
