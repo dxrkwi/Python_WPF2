@@ -1,13 +1,13 @@
 import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, RobertaForSequenceClassification
 
-# 1. Setup (Der Einzeiler)
+# 1. Setup
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model_path = "./final_model"
+model_id = "dxxrk/BERTweet-tuned-ElonTrumpPrediction"
 
 # 2. Modell & Tokenizer laden
 tokenizer = AutoTokenizer.from_pretrained("vinai/bertweet-base", normalization=True)
-model = AutoModelForSequenceClassification.from_pretrained(model_path).to(device)
+model = RobertaForSequenceClassification.from_pretrained(model_id).to(device)
 
 def predict(text):
     # Text tokenisieren und auf die GPU (5080) schieben
