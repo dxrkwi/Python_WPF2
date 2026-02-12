@@ -1,28 +1,43 @@
+import os
 import torch
+from dotenv import load_dotenv
 from transformers import AutoTokenizer, RobertaForSequenceClassification
+
+# .env laden
+load_dotenv()
 
 # 1. Setup
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model_id = "dxxrk/BERTweet-tuned-ElonTrumpPrediction"
+hf_token = os.getenv("HUGGINGFACE_API")
 
 # 2. Modell & Tokenizer laden
 tokenizer = AutoTokenizer.from_pretrained("vinai/bertweet-base", normalization=True)
-model = RobertaForSequenceClassification.from_pretrained(model_id).to(device)
+model = RobertaForSequenceClassification.from_pretrained(model_id, token=hf_token).to(device)
 
 def predict(text):
-    # Text tokenisieren und auf die GPU (5080) schieben
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True).to(device)
-    
+    # 1. Vorverarbeitung: Ersetzen von Kommas durch Semikolons
+    text = text.replace(",", ";")
+    # 2. Tokenisierung
+    inputs = tokenizer(
+        text, 
+        return_tensors="pt", 
+        truncation=True, 
+        padding="max_length", 
+        max_length=128
+    ).to(device)
+    # 3. Modell-Inferenz (Vorhersage ohne Gradientenberechnung)
     with torch.no_grad():
-        logits = model(**inputs).logits
-    
-    # Ergebnis auswerten (0 = Trump, 1 = Musk)
+        outputs = model(**inputs)
+        logits = outputs.logits
+    # 4. Ergebnis auswerten
+    # Bestimmung der Klasse (0 = Trump, 1 = Musk)
     idx = logits.argmax().item()
-    prob = torch.softmax(logits, dim=1)[0][idx].item()
-    
+    # Berechnung der Wahrscheinlichkeit mittels Softmax
+    probs = torch.softmax(logits, dim=1)
+    prob = probs[0][idx].item()
+    # Zuordnung des Labels
     author = "Elon Musk" if idx == 1 else "Donald Trump"
     return f"Autor: {author} (Sicherheit: {prob:.2%})"
-
 # Testlauf
-print(predict("I spoke with Savannah Guthrie, and let her know that I am directing ALL Federal Law Enforcement to be at the family’s, and Local Law Enforcement’s, complete disposal, IMMEDIATELY. We are deploying all resources to get her mother home safely. The prayers of our Nation are with her and her family. GOD BLESS AND PROTECT NANCY! PRESIDENT DONALD J. TRUMP"))
-print(predict("Building an interstellar civilization"))
+print(predict("1 big thing: Stunning crime crash: axios.com/newsletters/axios-am"))
