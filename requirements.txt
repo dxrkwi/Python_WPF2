@@ -3,5 +3,11 @@ transformers
 pandas
 safetensors
 python-dotenv
-emoji==2.15.0
-accelerate==1.12.0
+emoji
+accelerate
+gradio
+plotly
+protobuf
+sentencepiece
+#playwright
+#playwright-stealth
