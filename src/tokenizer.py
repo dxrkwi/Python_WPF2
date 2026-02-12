@@ -1,5 +1,4 @@
 # https://huggingface.co/docs/transformers/model_doc/bertweet MODEL BASE FOR THIS TRANSFORMER
-# pip3 install emoji==0.6.0 für Emojis
 
 #0 = TRUMP
 #1 = ELON

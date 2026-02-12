@@ -3,5 +3,5 @@ transformers
 pandas
 safetensors
 python-dotenv
-emoji
-accelerate
+emoji==2.15.0
+accelerate==1.12.0
