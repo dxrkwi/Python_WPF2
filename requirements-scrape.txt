@@ -1,0 +1,9 @@
+torch
+transformers
+pandas
+safetensors
+python-dotenv
+playwright
+playwright-stealth
+emoji==2.15.0
+accelerate==1.12.0
