@@ -1,43 +1,17 @@
-import torch
 import gradio as gr
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from transformers import AutoTokenizer, RobertaForSequenceClassification
+from predict import predict
 from collections import Counter
 import re
 import emoji
-
-# ============== LOAD MODEL ==============
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model_id = "dxxrk/BERTweet-tuned-ElonTrumpPrediction"
-
-print("Loading model...")
-tokenizer = AutoTokenizer.from_pretrained("vinai/bertweet-base", normalization=True)
-model = RobertaForSequenceClassification.from_pretrained(model_id).to(device)
 
 # ============== LOAD DATA ==============
 print("Loading data...")
 df_musk = pd.read_csv("data/musk_twitter_dataset.csv")
 df_trump = pd.read_csv("data/trump_truths_social.csv")
-
-# ============== PREDICTOR FUNCTION ==============
-def predict(text):
-    if not text.strip():
-        return {"Error": 1.0}
-
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True).to(device)
-
-    with torch.no_grad():
-        logits = model(**inputs).logits
-
-    probs = torch.softmax(logits, dim=1)[0]
-
-    return {
-        "Donald Trump": probs[0].item(),
-        "Elon Musk": probs[1].item()
-    }
 
 # ============== ANALYSIS FUNCTIONS ==============
 def extract_emojis(text):

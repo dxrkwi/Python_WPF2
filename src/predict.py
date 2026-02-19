@@ -16,28 +16,27 @@ tokenizer = AutoTokenizer.from_pretrained("vinai/bertweet-base", normalization=T
 model = RobertaForSequenceClassification.from_pretrained(model_id, token=hf_token).to(device)
 
 def predict(text):
-    # 1. Vorverarbeitung: Ersetzen von Kommas durch Semikolons
-    text = text.replace(",", ";")
-    # 2. Tokenisierung
+    """Gibt Wahrscheinlichkeiten als Dictionary zurück: {"Donald Trump": float, "Elon Musk": float}"""
+    if not text.strip():
+        return {"Error": 1.0}
+
     inputs = tokenizer(
-        text, 
-        return_tensors="pt", 
-        truncation=True, 
-        padding="max_length", 
+        text,
+        return_tensors="pt",
+        truncation=True,
+        padding="max_length",
         max_length=128
     ).to(device)
-    # 3. Modell-Inferenz (Vorhersage ohne Gradientenberechnung)
+
     with torch.no_grad():
-        outputs = model(**inputs)
-        logits = outputs.logits
-    # 4. Ergebnis auswerten
-    # Bestimmung der Klasse (0 = Trump, 1 = Musk)
-    idx = logits.argmax().item()
-    # Berechnung der Wahrscheinlichkeit mittels Softmax
-    probs = torch.softmax(logits, dim=1)
-    prob = probs[0][idx].item()
-    # Zuordnung des Labels
-    author = "Elon Musk" if idx == 1 else "Donald Trump"
-    return f"Autor: {author} (Sicherheit: {prob:.2%})"
-# Testlauf
-print(predict("1 big thing: Stunning crime crash: axios.com/newsletters/axios-am"))
+        logits = model(**inputs).logits
+
+    probs = torch.softmax(logits, dim=1)[0]
+
+    return {
+        "Donald Trump": probs[0].item(),
+        "Elon Musk": probs[1].item()
+    }
+
+if __name__ == "__main__":
+    print(predict("1 big thing: Stunning crime crash: axios.com/newsletters/axios-am"))
