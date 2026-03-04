@@ -16,4 +16,4 @@ docker build -f dockerfile -t scrape . && docker run -it \
   -v $(pwd)/user_data:/app/user_data \
   scrape:latest
 ```
-Then in the browser visit: !(vnc link)[http://localhost:6080/vnc.html]
+Then in the browser visit: (vnc link)[http://localhost:6080/vnc.html]
