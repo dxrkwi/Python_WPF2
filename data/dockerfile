@@ -1,0 +1,19 @@
+FROM python:3.13.12-trixie
+
+WORKDIR /app
+
+COPY requirements-scrape.txt requirements.txt
+RUN apt-get update && apt-get install -y \
+    xvfb \
+    x11vnc \
+    novnc \
+    && rm -rf /var/lib/apt/lists/*
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+RUN python -m playwright install chrome
+RUN python -m playwright install-deps chrome
+
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
+COPY scrape.py .
+CMD ["./entrypoint.sh"]
