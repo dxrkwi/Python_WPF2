@@ -1,5 +1,6 @@
 # main.py Entry Point for CLI runs
 # imports
+# Lukas Scholz
 import sys
 import os
 import traceback
@@ -13,6 +14,7 @@ TRAINDATA = ".data/processed_data.safetensors"
 
 
 def prediction_loop(local):
+    #TODO Implement evaluation check. Run eval.py if Evaluation below score of 80% Output warning
     print("Prediction Mode enter quit or exit to end:")
     while True:
         user_input = input("Enter text to predict: ").strip()
@@ -27,7 +29,7 @@ def prediction_loop(local):
             traceback.print_exc()
             sys.exit(1)
 
- 
+
 #local execution
 def run_local(args):
     print("Running in local mode. !Execution might take some time due to training pretrained model localy!")
