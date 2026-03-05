@@ -12,18 +12,17 @@ from safetensors.torch import save_file
 from dotenv import load_dotenv
 
 
-def tokenize(data_path):
+def tokenize(data_path, train_data):
     # Setup
     #token für schnelleren Download: kann man hier erstellen https://huggingface.co/settings/tokens
     load_dotenv()
     hf_token = os.getenv("HUGGINGFACE_API")
     if not hf_token:
-        print("Warnung: Kein HUGGINGFACE_API Token in .env gefunden!")
+        print("Warning: Kein HUGGINGFACE_API Token in .env gefunden!")
 
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     SOURCE_DIR = os.path.join(script_dir, "..", f"{data_path}")
-    os.makedirs(f"{data_path}", exist_ok=True)
     tokenizer = AutoTokenizer.from_pretrained("vinai/bertweet-base", normalization=True, token=hf_token) # WORTSEGMENTIERUNG = TOKENIZATION
 
     # 1. Alle CSVs laden & verbinden
@@ -46,9 +45,12 @@ def tokenize(data_path):
         "attention_mask": encodings.attention_mask,
         "labels": torch.tensor(df['label'].values, dtype=torch.int64) 
     }
-
-    save_file(payload, ".data/processed_data.safetensors")
+    #Create directory for tokenised data
+    os.makedirs(os.path.dirname(train_data), exist_ok=True)
+    
+    save_file(payload, train_data)
 
     print(f"Fertig! {len(df)} Zeilen für Transformer vorbereitet.")
 
-print(tokenize("data"))
+#if __name__ == "__main__":
+#    print(tokenize(args))

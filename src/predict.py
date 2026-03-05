@@ -3,20 +3,22 @@ import torch
 from dotenv import load_dotenv
 from transformers import AutoTokenizer, RobertaForSequenceClassification
 
+def predict(text,local):
+     # .env laden
+    load_dotenv()
 
-# .env laden
-load_dotenv()
+    # 1. Setup
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    hf_token = os.getenv("HUGGINGFACE_API")
 
-# 1. Setup
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model_id = "dxxrk/BERTweet-tuned-ElonTrumpPrediction"
-hf_token = os.getenv("HUGGINGFACE_API")
+    if local == True:
+        model_id = "./final_model"
+    else:   
+        model_id = "dxxrk/BERTweet-tuned-ElonTrumpPrediction"
+    # 2. Modell & Tokenizer laden
+    tokenizer = AutoTokenizer.from_pretrained("vinai/bertweet-base", normalization=True)
+    model = RobertaForSequenceClassification.from_pretrained(model_id, token=hf_token).to(device)
 
-# 2. Modell & Tokenizer laden
-tokenizer = AutoTokenizer.from_pretrained("vinai/bertweet-base", normalization=True)
-model = RobertaForSequenceClassification.from_pretrained(model_id, token=hf_token).to(device)
-
-def predict(text):
     """Gibt Wahrscheinlichkeiten als Dictionary zurück: {"Donald Trump": [Wahrscheinlichkeit], "Elon Musk": [Wahrscheinlichkeit]}"""
     if not text.strip():
         return {"Error": 1.0}
