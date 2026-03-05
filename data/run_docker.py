@@ -15,7 +15,7 @@ if os == 'Linux' or os == 'Darwin':
         "-v $(pwd)/user_data:/app/user_data "
         "scrape:latest"
     )
-else:
+elif os == 'Windows':
     run_cmd = (
         'docker run -it -p 6080:6080 '
         '-v "${PWD}/user_data:/app/user_data" '
