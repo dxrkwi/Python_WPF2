@@ -52,5 +52,5 @@ def tokenize(data_path, train_data):
 
     print(f"Fertig! {len(df)} Zeilen für Transformer vorbereitet.")
 
-#if __name__ == "__main__":
-#    print(tokenize(args))
+if __name__ == "__main__":
+    tokenize("data",".data/processed_data.safetensors")

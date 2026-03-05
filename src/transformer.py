@@ -35,3 +35,6 @@ def transform(train_data):
     print("Training beendet. Modell gespeichert in './final_model'.")
    
     return 0
+
+if __name__ == "__main__":
+    transform(".data/processed_data.safetensors")
