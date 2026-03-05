@@ -23,7 +23,7 @@ def tokenize(data_path):
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     SOURCE_DIR = os.path.join(script_dir, "..", f"{data_path}")
-    os.makedirs(".data", exist_ok=True)
+    os.makedirs(f"{data_path}", exist_ok=True)
     tokenizer = AutoTokenizer.from_pretrained("vinai/bertweet-base", normalization=True, token=hf_token) # WORTSEGMENTIERUNG = TOKENIZATION
 
     # 1. Alle CSVs laden & verbinden
@@ -49,4 +49,6 @@ def tokenize(data_path):
 
     save_file(payload, ".data/processed_data.safetensors")
 
-print(f"Fertig! {len(df)} Zeilen für Transformer vorbereitet.")
+    print(f"Fertig! {len(df)} Zeilen für Transformer vorbereitet.")
+
+print(tokenize("data"))
