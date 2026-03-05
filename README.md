@@ -16,4 +16,8 @@ docker build -f dockerfile -t scrape . && docker run -it \
   -v $(pwd)/user_data:/app/user_data \
   scrape:latest
 ```
+
+```powershell
+docker build -f dockerfile -t scrape .; docker run -it -p 6080:6080 -v "${PWD}/user_data:/app/user_data" scrape:latest
+```
 Then in the browser visit: [vnc link](http://localhost:6080/vnc.html)
