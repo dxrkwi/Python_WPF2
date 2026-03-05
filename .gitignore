@@ -1,7 +1,7 @@
 # --- Projektspezifische Daten ---
 user_data/
 playwright_data/
-
+.data
 # --- Python & Virtuelle Umgebungen ---
 .venv/
 venv/
