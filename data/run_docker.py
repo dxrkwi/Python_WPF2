@@ -20,7 +20,7 @@ run_cmd = (
 console.print(Panel(f"[cyan]{build_cmd}[/]", title="Building"))
 build = subprocess.run(build_cmd, shell=True)
 
-# Run (only if build succeeded)
+
 if build.returncode == 0:
     console.print(Panel(f"[cyan]{run_cmd}[/]", title="Running"))
     subprocess.run(run_cmd, shell=True)

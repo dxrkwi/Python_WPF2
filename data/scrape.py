@@ -9,7 +9,6 @@ from rich.panel import Panel
 
 console = Console()
 yellow_console = Console(style="yellow")
-orange_console = Console(style="bold yellow")
 warning_console = Console(style="bold red")
 
 TRUMP_ID = "107780257626128497"
@@ -91,7 +90,7 @@ class resilient_scraper:
                 warning_console.print("Zeitüberschreitung beim Warten auf Content.")
                 break
 
-            time.sleep(2)
+            time.sleep(5)
 
     def fetch_batch(self, page):
         api_url = f"https://truthsocial.com/api/v1/accounts/{self.user_id}/statuses?limit=40"
@@ -136,7 +135,7 @@ class resilient_scraper:
                 time.sleep(random.uniform(1.0, 2.0))
 
             case 429:
-                orange_console.print(f"Rate Limit (429). Warte {self.backoff_time}s...")
+                yellow_console.print(f"Rate Limit (429). Warte {self.backoff_time}s...")
                 time.sleep(self.backoff_time)
                 self.backoff_time = min(self.backoff_time * 2, 60)
 
