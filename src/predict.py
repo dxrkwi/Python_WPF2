@@ -3,6 +3,7 @@ import torch
 from dotenv import load_dotenv
 from transformers import AutoTokenizer, RobertaForSequenceClassification
 
+
 # .env laden
 load_dotenv()
 
@@ -16,7 +17,7 @@ tokenizer = AutoTokenizer.from_pretrained("vinai/bertweet-base", normalization=T
 model = RobertaForSequenceClassification.from_pretrained(model_id, token=hf_token).to(device)
 
 def predict(text):
-    """Gibt Wahrscheinlichkeiten als Dictionary zurück: {"Donald Trump": float, "Elon Musk": float}"""
+    """Gibt Wahrscheinlichkeiten als Dictionary zurück: {"Donald Trump": [Wahrscheinlichkeit], "Elon Musk": [Wahrscheinlichkeit]}"""
     if not text.strip():
         return {"Error": 1.0}
 
@@ -37,6 +38,6 @@ def predict(text):
         "Donald Trump": probs[0].item(),
         "Elon Musk": probs[1].item()
     }
-
+# Main für Print von Anfrage was predicted werden soll
 if __name__ == "__main__":
     print(predict("1 big thing: Stunning crime crash: axios.com/newsletters/axios-am"))

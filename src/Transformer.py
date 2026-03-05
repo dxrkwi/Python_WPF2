@@ -2,6 +2,9 @@ import torch
 from safetensors.torch import load_file
 from transformers import AutoModelForSequenceClassification, Trainer, TrainingArguments
 
+#Cathleen
+
+
 # CUDA CHECK
 print(torch.cuda.is_available())
 
