@@ -15,12 +15,14 @@ if operating_system == 'Linux' or operating_system == 'Darwin':
         "docker run -it "
         "-p 6080:6080 "
         "-v $(pwd)/user_data:/app/user_data "
+        "-v $(pwd)/trump_truths_progress.csv:/app/trump_truths_progress.csv "
         "scrape:latest"
     )
 elif operating_system == 'Windows':
     run_cmd = (
         'docker run -it -p 6080:6080 '
-        f"-v {current_path}:/app/user_data "
+        f"-v {current_path}/user_data:/app/user_data "
+        f"-v {current_path}/trump_truths_progress.csv:/app/trump_truths_progress.csv "
         'scrape:latest'
     )
 
