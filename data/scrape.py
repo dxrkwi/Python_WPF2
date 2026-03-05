@@ -195,6 +195,7 @@ class resilient_scraper:
                     time.sleep(5)
 
             browser.close()
+            console.print(Panel(f"[green]Scraping abgeschlossen! {len(self.all_posts)} Posts gesammelt.[/]", title="Done"))
 
 if __name__ == "__main__":
     resilient_scraper(TRUMP_ID, USERNAME, 10000).run()
