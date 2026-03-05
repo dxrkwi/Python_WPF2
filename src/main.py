@@ -1,6 +1,6 @@
 # main.py Entry Point for CLI runs
-# imports
 # Lukas Scholz
+# imports
 import sys
 import os
 import traceback
