@@ -75,10 +75,8 @@ def run_resilient_scraper(user_id, target_count=10000):
 
                     # Manchmal kommt eine Liste, manchmal Pagination-Objekt? 
                     # Bei Mastodon/TruthSocial ist es meist eine Liste.
-                    if isinstance(data, list):
-                        items = data
-                    else:
-                        return # Unbekanntes Format
+                    if not isinstance(data, list): return
+                    items = data
 
                     if not items: return
 
@@ -94,7 +92,6 @@ def run_resilient_scraper(user_id, target_count=10000):
 
                 except Exception as e:
                     warning_console.print(f"Error handling response: {e}")
-                    pass
 
         page.on("response", handle_response)
 
@@ -102,11 +99,9 @@ def run_resilient_scraper(user_id, target_count=10000):
         page.goto("https://truthsocial.com/" + USERNAME, wait_until="domcontentloaded")
 
         warning_console.print("--- BITTE MANUELL CLOUDFLARE/CAPTCHA LÖSEN FALLS NÖTIG ---")
-        yellow_console.print("Das Skript wartet und beginnt dann zu scrollen.")
+        yellow_console.print("Das Skript wartet und beginnt dann zu scrollen.\nWarte auf Umgehung der Cloudflare-Seite...")
 
         # Warte, bis der User das Captcha gelöst hat
-        console.print("Warte auf Umgehung der Cloudflare-Seite...")
-
         start_wait = time.time()
 
         while True:
@@ -122,7 +117,8 @@ def run_resilient_scraper(user_id, target_count=10000):
 
             console.print(f"Status: Title='{current_title}' | Feed={has_feed} | Article={has_article} | Header={has_header}")
 
-            if (not is_cloudflare) and (has_feed or has_article or has_header or "Trump" in current_title):
+            content_detected = not is_cloudflare and (has_feed or has_article or has_header or "Trump" in current_title)
+            if content_detected:
                 console.print("Timeline/Content erkannt! Beginne mit Scrollen...")
                 break
 
