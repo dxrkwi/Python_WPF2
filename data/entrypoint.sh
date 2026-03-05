@@ -7,4 +7,3 @@ sleep 1
 websockify --web /usr/share/novnc 6080 localhost:5900 &
 sleep 1
 DISPLAY=:99 python scrape.py
-
