@@ -5,26 +5,17 @@ from rich.panel import Panel
 import os
 
 console = Console()
-current_path = os.getcwd()
+current_path = os.path.dirname(os.path.abspath(__file__))
 operating_system = platform.system()
 
-build_cmd = ("docker build -f dockerfile -t scrape .") 
-run_cmd = ('echo "Don\'t know your OS"')
-if operating_system == 'Linux' or operating_system == 'Darwin':
-    run_cmd = (
+build_cmd = f"docker build -f {current_path}/dockerfile -t scrape {current_path}"
+run_cmd = (
         "docker run -it "
         "-p 6080:6080 "
-        "-v $(pwd)/user_data:/app/user_data "
-        "-v $(pwd)/trump_truths_progress.csv:/app/trump_truths_progress.csv "
-        "scrape:latest"
-    )
-elif operating_system == 'Windows':
-    run_cmd = (
-        'docker run -it -p 6080:6080 '
         f"-v {current_path}/user_data:/app/user_data "
         f"-v {current_path}/trump_truths_progress.csv:/app/trump_truths_progress.csv "
-        'scrape:latest'
-    )
+        "scrape:latest"
+        )
 
 console.print(Panel(f"[cyan]{build_cmd}[/]", title="Building"))
 build = subprocess.run(build_cmd, shell=True)

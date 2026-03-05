@@ -15,11 +15,10 @@ train:
 	python src/tokenizer.py
 	python src/Transformer.py
 
-# Run data scraping (requires playwright)
+# Run data scraping (requires docker)
 scrape:
 	pip install -r requirements-scrape.txt
-	playwright install
-	python data/scrape.py
+	python data/run_docker.py
 
 # Run prediction from terminal
 predict:

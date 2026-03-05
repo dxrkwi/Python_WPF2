@@ -1,4 +1,1 @@
-pandas
-playwright
-emoji==2.15.0
-tf-playwright-stealth
+rich
