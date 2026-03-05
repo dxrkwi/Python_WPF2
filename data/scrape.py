@@ -17,15 +17,24 @@ SAVE_FILE = "trump_truths_progress.csv"
 ID_TRACKER = "last_id.txt"
 USERNAME = "@realDonaldTrump"
 
+MAX_WAIT = 600 # 10 Minuten
+_HTML_TAG_RE = re.compile('<.*?>')
+
 def clean_html(raw_html):
     if not raw_html: return ""
-    cleanr = re.compile('<.*?>')
-    cleantext = re.sub(cleanr, '', raw_html)
-    return cleantext.replace('\n', ' ').replace('\r', '').replace(',', ';').strip()
+    return re.sub(_HTML_TAG_RE, '', raw_html).replace('\n', ' ').replace('\r', '').replace(',', ';').strip()
+
+def save_batch(new_batch, max_id, message, all_truths):
+    if new_batch:
+        pd.DataFrame(new_batch).to_csv(SAVE_FILE, mode='a', index=False, header=False, encoding='utf-8')
+        all_truths.extend(new_batch)
+        console.print(message)
+        if max_id:
+            with open(ID_TRACKER, 'w') as f:
+                f.write(str(max_id))
 
 def run_resilient_scraper(user_id, target_count=10000):
     all_truths = []
-
     # Lade die letzte ID, falls das Skript neu gestartet wurde
     max_id = None
     if os.path.exists(ID_TRACKER):
@@ -80,21 +89,11 @@ def run_resilient_scraper(user_id, target_count=10000):
                             new_batch.append(["Trump", content])
                         local_max_id = entry.get('id')
 
-                    if new_batch:
-                        # Speichern
-                        df_temp = pd.DataFrame(new_batch)
-                        df_temp.to_csv(SAVE_FILE, mode='a', index=False, header=False, encoding='utf-8')
 
-                        all_truths.extend(new_batch)
-                        console.print(f"Captured {len(new_batch)} posts via scrolling. Total: {len(all_truths)}")
-
-                        # ID Tracker updaten (optional, da wir eh scrollen)
-                        if local_max_id:
-                            with open(ID_TRACKER, 'w') as f:
-                                f.write(str(local_max_id))
+                    save_batch(new_batch, local_max_id, f"Captured {len(new_batch)} posts via scrolling. Total: {len(all_truths)}", all_truths)
 
                 except Exception as e:
-                    # JSON Fehler oder so
+                    warning_console.print(f"Error handling response: {e}")
                     pass
 
         page.on("response", handle_response)
@@ -109,13 +108,12 @@ def run_resilient_scraper(user_id, target_count=10000):
         console.print("Warte auf Umgehung der Cloudflare-Seite...")
 
         start_wait = time.time()
-        max_wait = 600 # 10 Minuten
 
         while True:
             current_title = page.title()
 
             # Check Cloudflare indicators
-            is_cloudflare = "Just a moment" in current_title or "Nur einen Moment" in current_title or "Cloudflare" in current_title
+            is_cloudflare = any(s in current_title for s in ["Just a moment", "Nur einen Moment", "Cloudflare"])
 
             # Check Success indicators
             has_feed = page.locator('div[role="feed"]').count() > 0
@@ -128,7 +126,7 @@ def run_resilient_scraper(user_id, target_count=10000):
                 console.print("Timeline/Content erkannt! Beginne mit Scrollen...")
                 break
 
-            if time.time() - start_wait > max_wait:
+            if time.time() - start_wait > MAX_WAIT:
                 warning_console.print("Zeitüberschreitung beim Warten auf Content.")
                 break
 
@@ -186,20 +184,11 @@ def run_resilient_scraper(user_id, target_count=10000):
                             max_id = entry.get('id')
 
                         # Speichern
-                        if new_batch:
-                            df_temp = pd.DataFrame(new_batch)
-                            df_temp.to_csv(SAVE_FILE, mode='a', index=False, header=False, encoding='utf-8')
-                            all_truths.extend(new_batch)
-                            console.print(f" + {len(new_batch)} Posts geladen. (ID: {max_id})")
+                        save_batch(new_batch, max_id, f" + {len(new_batch)} Posts geladen. (ID: {max_id})", all_truths)
 
                         # Reset Error Counters
                         backoff_time = 5
                         consecutive_errors = 0
-
-                        # Save ID
-                        if max_id:
-                            with open(ID_TRACKER, 'w') as f:
-                                f.write(str(max_id))
 
                         # Kurze Pause für API Fairness (schneller als Scrollen, aber nicht zu aggressiv)
                         time.sleep(random.uniform(1.0, 2.0))
