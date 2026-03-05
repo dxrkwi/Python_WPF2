@@ -2,23 +2,25 @@ import platform
 import subprocess
 from rich.console import Console
 from rich.panel import Panel
+import os
 
 console = Console()
-os = platform.system()
+current_path = os.getcwd()
+operating_system = platform.system()
 
 build_cmd = ("docker build -f dockerfile -t scrape .") 
 run_cmd = ('echo "Don\'t know your OS"')
-if os == 'Linux' or os == 'Darwin':
+if operating_system == 'Linux' or operating_system == 'Darwin':
     run_cmd = (
         "docker run -it "
         "-p 6080:6080 "
         "-v $(pwd)/user_data:/app/user_data "
         "scrape:latest"
     )
-elif os == 'Windows':
+elif operating_system == 'Windows':
     run_cmd = (
         'docker run -it -p 6080:6080 '
-        '-v "${PWD}/user_data:/app/user_data" '
+        f"-v {current_path}:/app/user_data "
         'scrape:latest'
     )
 
