@@ -1,8 +1,5 @@
+import os, random, re, time
 import pandas as pd
-import time
-import re
-import random
-import os
 from playwright.sync_api import sync_playwright
 from rich.console import Console
 from rich.panel import Panel
