@@ -14,6 +14,7 @@ run_cmd = (
         "-p 6080:6080 "
         f"-v {current_path}/user_data:/app/user_data "
         f"-v {current_path}/trump_truths_progress.csv:/app/trump_truths_progress.csv "
+        f"-v {current_path}/last_id.txt:/app/last_id.txt "
         "scrape:latest"
         )
 

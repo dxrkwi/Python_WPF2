@@ -30,8 +30,12 @@ class resilient_scraper:
 
         if os.path.exists(ID_TRACKER):
             with open(ID_TRACKER, 'r') as f:
-                self.max_id = f.read().strip()
-                console.print(f"Setze Scraping ab ID {self.max_id} fort...")
+                saved_id = f.read().strip()
+                if saved_id.isdigit():
+                    self.max_id = saved_id
+                    console.print(f"Setze Scraping ab ID {self.max_id} fort...")
+                else:
+                    console.print(f"[yellow]Ungültige ID '{saved_id}' in {ID_TRACKER} – wird ignoriert.[/yellow]")
 
     def clean_html(self, raw_html):
         if not raw_html: return ""
