@@ -20,6 +20,14 @@ _HTML_TAG_RE = re.compile('<.*?>')
 
 class resilient_scraper:
     def __init__(self, user_id, username, target_count=10000):
+        """
+        Initialize the scraper and resume from last saved ID if available.
+
+        Args:
+            user_id: The Truth Social account ID to scrape.
+            username: The Truth Social username (e.g. @realDonaldTrump).
+            target_count: Number of posts to collect before stopping.
+        """
         self.user_id = user_id
         self.username = username
         self.target_count = target_count
@@ -38,10 +46,28 @@ class resilient_scraper:
                     console.print(f"[yellow]Ungültige ID '{saved_id}' in {ID_TRACKER} – wird ignoriert.[/yellow]")
 
     def clean_html(self, raw_html):
+        """
+        Remove HTML tags and normalize whitespace from a raw HTML string.
+
+        Args:
+            raw_html: Raw HTML string to clean.
+
+        Returns:
+            Cleaned plain text string, or empty string if input is unfitting.
+        """
         if not raw_html: return ""
         return re.sub(_HTML_TAG_RE, '', raw_html).replace('\n', ' ').replace('\r', '').replace(',', ';').strip()
 
     def _parse_batch(self, data):
+        """
+        Extract non-empty post content from a list of API response entries.
+
+        Args:
+            data: List of post objects returned by the Truth Social API.
+
+        Returns:
+            List of [author, content] pairs with HTML stripped.
+        """
         return [
             ["Trump", content]
             for entry in data
@@ -49,6 +75,14 @@ class resilient_scraper:
         ]
 
     def save_batch(self, new_batch, max_id, message):
+        """
+        Append a batch of posts to the CSV file and update the ID tracker.
+
+        Args:
+            new_batch: List of [author, content] pairs to save.
+            max_id: The pagination cursor ID to write to last_id.txt.
+            message: Status message to print to the console after saving.
+        """
         if new_batch:
             pd.DataFrame(new_batch).to_csv(SAVE_FILE, mode='a', index=False, header=False, encoding='utf-8')
             self.all_posts.extend(new_batch)
@@ -58,6 +92,12 @@ class resilient_scraper:
                     f.write(str(max_id))
 
     def handle_response(self, response):
+        """
+        Playwright response event handler that captures posts intercepted during page scrolling.
+
+        Args:
+            response: Playwright Response object from the page event listener.
+        """
         if not ("api/v1/accounts" in response.url and "statuses" in response.url and response.status == 200):
             return
         try:
@@ -73,6 +113,13 @@ class resilient_scraper:
             warning_console.print(f"Error handling response: {e}")
 
     def wait_for_content(self, page):
+        """
+        Block until the page has loaded real content or the timeout is reached.
+        Prompts the user to solve any Cloudflare challenge if needed.
+
+        Args:
+            page: Playwright Page object to monitor.
+        """
         warning_console.print(Panel("--- CLOUDFLARE/CAPTCHA LÖSEN FALLS NÖTIG ---"))
         yellow_console.print("Warte auf Content...")
         start_wait = time.time()
@@ -98,6 +145,16 @@ class resilient_scraper:
             time.sleep(5)
 
     def fetch_batch(self, page):
+        """
+        Fetch the next batch of posts from the Truth Social API via page.evaluate.
+        Uses max_id as a pagination cursor to retrieve older posts.
+
+        Args:
+            page: Playwright Page object used to execute the fetch request.
+
+        Returns:
+            Dict with 'status' (HTTP status code) and 'json' (response data or None).
+        """
         api_url = f"https://truthsocial.com/api/v1/accounts/{self.user_id}/statuses?limit=40"
         if self.max_id:
             api_url += f"&max_id={self.max_id}"
@@ -120,6 +177,17 @@ class resilient_scraper:
         }}""")
 
     def handle_status(self, status, response_data, page):
+        """
+        Handle the API response status code and take appropriate action.
+
+        Args:
+            status: HTTP status code from the fetch response.
+            response_data: Full response dict containing 'status' and 'json'.
+            page: Playwright Page object, used for mouse movement on 403.
+
+        Returns:
+            True to continue scraping, False to stop.
+        """
         match status:
             case 200:
                 data = response_data.get('json')
@@ -153,6 +221,10 @@ class resilient_scraper:
         return True  # Continue
 
     def run(self):
+        """
+        Launch the browser, navigate to the target profile, and run the scraping loop
+        until the target post count is reached. 
+        """
         with sync_playwright() as p:
             browser = p.chromium.launch_persistent_context(
                 user_data_dir="user_data",
