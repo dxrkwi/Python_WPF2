@@ -41,6 +41,13 @@ class resilient_scraper:
         if not raw_html: return ""
         return re.sub(_HTML_TAG_RE, '', raw_html).replace('\n', ' ').replace('\r', '').replace(',', ';').strip()
 
+    def _parse_batch(self, data):
+        return [
+            ["Trump", content]
+            for entry in data
+            if (content := self.clean_html(entry.get('content', '')))
+        ]
+
     def save_batch(self, new_batch, max_id, message):
         if new_batch:
             pd.DataFrame(new_batch).to_csv(SAVE_FILE, mode='a', index=False, header=False, encoding='utf-8')
@@ -58,15 +65,9 @@ class resilient_scraper:
             if not isinstance(data, list): return
             if not data: return
 
-            new_batch = []
-            local_max_id = None
-            for entry in data:
-                content = self.clean_html(entry.get('content', ''))
-                if content:
-                    new_batch.append(["Trump", content])
-                local_max_id = entry.get('id')
-
-            self.save_batch(new_batch, local_max_id, f"Captured {len(new_batch)} posts via scrolling. Total: {len(self.all_posts)}")
+            new_batch = self._parse_batch(data)
+            self.max_id = data[-1].get('id')
+            self.save_batch(new_batch, self.max_id, f"Captured {len(new_batch)} posts via scrolling. Total: {len(self.all_posts)}")
 
         except Exception as e:
             warning_console.print(f"Error handling response: {e}")
@@ -126,13 +127,8 @@ class resilient_scraper:
                     warning_console.print("Keine weiteren Daten empfangen (Leere Liste).")
                     return False  # Signal to stop
 
-                new_batch = []
-                for entry in data:
-                    content = self.clean_html(entry.get('content', ''))
-                    if content:
-                        new_batch.append(["Trump", content])
-                    self.max_id = entry.get('id')
-
+                new_batch = self._parse_batch(data)
+                self.max_id = data[-1].get('id')
                 self.save_batch(new_batch, self.max_id, f" + {len(new_batch)} Posts geladen. (ID: {self.max_id})")
                 self.backoff_time = 5
                 self.consecutive_errors = 0
