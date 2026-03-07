@@ -25,13 +25,6 @@ scrape:
 predict:
 	python src/predict.py
 
-# Stop the dashboard
-stop:
-	pkill -f dashboard.py || true
-
-# Restart the dashboard
-restart: stop dashboard
-
 # Show help
 help:
 	@echo "Available commands:"
@@ -40,7 +33,5 @@ help:
 	@echo "  make train      - Full training pipeline (tokenize + train)"
 	@echo "  make scrape     - Run data scraping"
 	@echo "  make predict    - Run prediction in terminal"
-	@echo "  make stop       - Stop the dashboard"
-	@echo "  make restart    - Restart the dashboard"
 
-.PHONY: install dashboard train scrape predict stop restart help
+.PHONY: install dashboard train scrape predict help
